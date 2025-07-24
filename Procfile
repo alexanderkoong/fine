@@ -1,0 +1,1 @@
+web: gunicorn fine_board_app:app

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: bmt-fines-app
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn fine_board_app:app"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.9.18"
