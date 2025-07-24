@@ -65,11 +65,14 @@
 .navbar {
     background-color: #5d4037; /* Rich brown color */
     color: white;
-    padding: 5rem 0; /* Double the padding to make it larger */
+    padding: 0; /* Remove padding as we'll use the glass header to fill the space */
+    height: 10rem; /* Set fixed height for the brown background */
     margin-bottom: 2.5rem;
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     position: relative;
     z-index: 10;
+    display: flex;
+    align-items: flex-start; /* Align content to top */
 }
 
 .navbar-content {
@@ -77,11 +80,12 @@
     justify-content: space-between;
     align-items: center;
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
-    padding: 0 1.5rem;
     background-color: rgba(0,0,0,0.1); /* Slightly darker background for better contrast */
-    border-radius: 8px;
-    padding: 1.25rem;
+    border-radius: 0 0 8px 8px; /* Rounded only at bottom corners */
+    padding: 1.5rem;
+    height: 100%; /* Fill entire height */
 }
 
 .navbar h1 {
