@@ -372,7 +372,7 @@ function toggleReactionsPanel(button, fineIndex, replyIndex) {
     const reactionsPanel = document.createElement('div');
     reactionsPanel.className = 'reactions-panel';
     
-    const emojis = ['👍', '👎', '😀', '😍', '🎉', '😮', '😢', '❤️'];
+    const emojis = ['😂', '😭', '😞', '❗', '❓', '🍆'];
     
     emojis.forEach(emoji => {
         const emojiBtn = document.createElement('button');
@@ -417,7 +417,7 @@ function toggleFineReactionsPanel(event, fineIndex) {
     const reactionsPanel = document.createElement('div');
     reactionsPanel.className = 'reactions-panel';
     
-    const emojis = ['👍', '👎', '😀', '😍', '🎉', '😮', '😢', '❤️', '💯', '🔥'];
+    const emojis = ['😂', '😭', '😞', '❗', '❓', '🍆'];
     
     emojis.forEach(emoji => {
         const emojiBtn = document.createElement('button');
