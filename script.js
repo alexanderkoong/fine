@@ -434,66 +434,6 @@ function addReply(fineIndex, content) {
     renderFinesTable(); // Update reply count in table
 }
 
-// Remove a fine
-function removeFine(index) {
-    if (confirm('Are you sure you want to remove this fine?')) {
-        fines.splice(index, 1);
-        saveFines();
-        renderFinesTable();
-        
-        // Show confirmation message
-        const message = document.createElement('div');
-        message.className = 'flash-message';
-        message.textContent = 'Fine removed successfully';
-        document.querySelector('.container').insertBefore(message, document.querySelector('h2'));
-        
-        // Auto-remove message after 3 seconds
-        setTimeout(() => {
-            message.remove();
-        }, 3000);
-    }
-}
-
-// Render totals page
-function renderTotalsPage() {
-    const totals = {};
-    
-    // Calculate totals for each person
-    fines.forEach(fine => {
-        const offender = fine.offender;
-        if (!totals[offender]) {
-            totals[offender] = 0;
-        }
-        totals[offender] += fine.amt;
-    });
-    
-    // Sort by amount owed (highest first)
-    const sortedTotals = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-    
-    let totalOwed = 0;
-    let html = '<div class="totals-grid">';
-    
-    sortedTotals.forEach(([person, amount]) => {
-        totalOwed += amount;
-        html += `
-            <div class="total-item">
-                <div class="person-name">${person}</div>
-                <div class="amount-owed">$${amount.toFixed(2)}</div>
-            </div>
-        `;
-    });
-    
-    html += '</div>';
-    html += `<div class="grand-total">Total Fines: $${totalOwed.toFixed(2)}</div>`;
-    
-    totalsContainer.innerHTML = html;
-}
-
-// Save fines to localStorage
-function saveFines() {
-    localStorage.setItem('fines', JSON.stringify(fines));
-}
-
 // Edit fine/credit
 function editFine(index) {
     const fine = fines[index];
@@ -600,6 +540,66 @@ function editFine(index) {
             }, 3000);
         }
     });
+}
+
+// Remove a fine
+function removeFine(index) {
+    if (confirm('Are you sure you want to remove this fine?')) {
+        fines.splice(index, 1);
+        saveFines();
+        renderFinesTable();
+        
+        // Show confirmation message
+        const message = document.createElement('div');
+        message.className = 'flash-message';
+        message.textContent = 'Fine removed successfully';
+        document.querySelector('.container').insertBefore(message, document.querySelector('h2'));
+        
+        // Auto-remove message after 3 seconds
+        setTimeout(() => {
+            message.remove();
+        }, 3000);
+    }
+}
+
+// Render totals page
+function renderTotalsPage() {
+    const totals = {};
+    
+    // Calculate totals for each person
+    fines.forEach(fine => {
+        const offender = fine.offender;
+        if (!totals[offender]) {
+            totals[offender] = 0;
+        }
+        totals[offender] += fine.amt;
+    });
+    
+    // Sort by amount owed (highest first)
+    const sortedTotals = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    
+    let totalOwed = 0;
+    let html = '<div class="totals-grid">';
+    
+    sortedTotals.forEach(([person, amount]) => {
+        totalOwed += amount;
+        html += `
+            <div class="total-item">
+                <div class="person-name">${person}</div>
+                <div class="amount-owed">$${amount.toFixed(2)}</div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    html += `<div class="grand-total">Total Fines: $${totalOwed.toFixed(2)}</div>`;
+    
+    totalsContainer.innerHTML = html;
+}
+
+// Save fines to localStorage
+function saveFines() {
+    localStorage.setItem('fines', JSON.stringify(fines));
 }
 
 // Setup event listeners
