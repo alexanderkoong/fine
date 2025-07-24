@@ -208,11 +208,46 @@ body {
 
 /* Cell text clipping */
 #finesTable td {
-    max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: normal;
     word-wrap: break-word;
+}
+
+/* Set specific column widths */
+#finesTable th:nth-child(1), /* Date */
+#finesTable td:nth-child(1) {
+    width: 10%;
+}
+
+#finesTable th:nth-child(2), /* Offender */
+#finesTable td:nth-child(2) {
+    width: 10%;
+}
+
+#finesTable th:nth-child(3), /* Description */
+#finesTable td:nth-child(3) {
+    width: 40%; /* Make description column wider */
+}
+
+#finesTable th:nth-child(4), /* Amount */
+#finesTable td:nth-child(4) {
+    width: 10%;
+}
+
+#finesTable th:nth-child(5), /* Proposed by */
+#finesTable td:nth-child(5) {
+    width: 10%;
+}
+
+#finesTable th:nth-child(6), /* Replies */
+#finesTable td:nth-child(6) {
+    width: 8%;
+}
+
+#finesTable th:nth-child(7), /* Actions */
+#finesTable td:nth-child(7) {
+    width: 12%;
 }
 
 .fine-row:hover {
@@ -244,7 +279,7 @@ body {
 }
 
 #repliesContainer {
-    max-height: 300px;
+    max-height: 200px;
     overflow-y: auto;
     margin-bottom: 1rem;
 }
@@ -450,7 +485,7 @@ body {
     border: none;
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
-    border-radius: 4px;
+    border-radius: 20px;
     cursor: pointer;
     font-weight: 500;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
