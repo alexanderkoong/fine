@@ -146,21 +146,35 @@ def ensure_templates():
     <meta charset='utf-8'>
     <title>Fine Board</title>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/picnic'>
-    <style>body{max-width:800px;margin:2rem auto;}table{width:100%;}</style>
+    <style>
+        body{max-width:800px;margin:2rem auto;padding:0 1rem;font-family:system-ui,-apple-system,sans-serif;}
+        table{width:100%;border-collapse:collapse;margin:1rem 0;}
+        th,td{padding:0.5rem;text-align:left;border-bottom:1px solid #ddd;}
+        th{background-color:#f8f9fa;font-weight:600;}
+        header{background-color:#fff;padding:1rem 0;margin-bottom:1rem;}
+        h1{color:#2c3e50;margin:0 0 0.5rem 0;}
+        .user-info{color:#6c757d;font-size:0.9rem;margin-bottom:1rem;}
+        .actions{margin:1rem 0;}
+        .actions a{display:inline-block;margin-right:1rem;padding:0.5rem 1rem;background-color:#007bff;color:white;text-decoration:none;border-radius:4px;}
+        .actions a:hover{background-color:#0056b3;}
+        .remove-btn{background-color:#dc3545 !important;padding:0.25rem 0.5rem !important;font-size:0.8rem !important;margin:0 !important;}
+        .remove-btn:hover{background-color:#c82333 !important;}
+        .flash-messages{background-color:#d4edda;border:1px solid #c3e6cb;color:#155724;padding:0.75rem;border-radius:4px;margin-bottom:1rem;}
+    </style>
 </head>
 <body>
 <header>
-    <h1>Fine Board</h1>
+    <h1>Team Fine System</h1>
     {% if g.user %}
-      Logged in as <strong>{{ g.user['username'] }}</strong> · <a href='{{ url_for('logout') }}'>Logout</a>
+      <div class="user-info">Logged in as <strong>{{ g.user['username'] }}</strong> · <a href='{{ url_for('logout') }}'>Logout</a></div>
     {% endif %}
     <hr>
 </header>
 {% with messages = get_flashed_messages() %}
   {% if messages %}
-    <aside>
-      {% for m in messages %}<p>{{ m }}</p>{% endfor %}
-    </aside>
+    <div class="flash-messages">
+      {% for m in messages %}{{ m }}{% endfor %}
+    </div>
   {% endif %}
 {% endwith %}
 {% block content %}{% endblock %}
@@ -170,7 +184,7 @@ def ensure_templates():
 {% block content %}
 {% if fines %}
 <table>
-  <thead><tr><th>Date</th><th>Offender</th><th>Description</th><th>Amount ($)</th><th>Proposed By</th></tr></thead>
+  <thead><tr><th>Date</th><th>Offender</th><th>Description</th><th>Amount ($)</th><th>Proposed By</th>{% if g.user['username'] in ['alexkoong', 'noahhernandez', 'zanderbravo', 'james lian'] %}<th>Actions</th>{% endif %}</tr></thead>
   <tbody>
   {% for f in fines %}
   <tr>
@@ -179,15 +193,24 @@ def ensure_templates():
     <td>{{ f['description'] }}</td>
     <td>{{ '%.2f'|format(f['amount']) }}</td>
     <td>{{ f['proposer_name'] }}</td>
+    {% if g.user['username'] in ['alexkoong', 'noahhernandez', 'zanderbravo', 'james lian'] %}
+    <td>
+      <form method='post' action='{{ url_for('remove_fine', fine_id=f['id']) }}' style='display:inline;' onsubmit='return confirm("Are you sure you want to remove this fine?")'>
+        <button type='submit' class='remove-btn'>Remove</button>
+      </form>
+    </td>
+    {% endif %}
   </tr>
   {% endfor %}
   </tbody>
 </table>
 {% else %}<p>No fines yet!</p>{% endif %}
-<p><a href='{{ url_for('totals') }}'>📊 View Totals</a></p>
-{% if g.user['role']=='upper' %}
-  <p><a href='{{ url_for('add') }}'>➕ Propose a new fine</a></p>
-{% endif %}
+<div class="actions">
+  <a href='{{ url_for('totals') }}'>📊 View Totals</a>
+  {% if g.user['role']=='upper' %}
+    <a href='{{ url_for('add') }}'>➕ Propose a new fine</a>
+  {% endif %}
+</div>
 {% endblock %}""",
         "login.html": """{% extends 'base.html' %}
 {% block content %}
@@ -347,6 +370,29 @@ def totals():
     ).fetchone()["total"] or 0
     
     return render_template("totals.html", totals=totals, grand_total=grand_total)
+
+
+@app.route("/remove_fine/<int:fine_id>", methods=["POST"])
+@login_required
+def remove_fine(fine_id):
+    # Only allow specific users to remove fines
+    allowed_users = ['alexkoong', 'noahhernandez', 'zanderbravo', 'james lian']
+    if g.user['username'] not in allowed_users:
+        flash("❌ You don't have permission to remove fines.")
+        return redirect(url_for("index"))
+    
+    # Get the fine to check if it exists
+    fine = get_db().execute("SELECT * FROM fines WHERE id = ?", (fine_id,)).fetchone()
+    if not fine:
+        flash("❌ Fine not found.")
+        return redirect(url_for("index"))
+    
+    # Remove the fine
+    get_db().execute("DELETE FROM fines WHERE id = ?", (fine_id,))
+    get_db().commit()
+    
+    flash("✅ Fine removed successfully.")
+    return redirect(url_for("index"))
 
 
 @app.route("/logout")
