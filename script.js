@@ -655,7 +655,14 @@ function removeFine(index) {
 
 // Render totals page
 function renderTotalsPage() {
+    // Define all users to always show
+    const allUsers = ['Koong', 'Noah', 'James', 'Zander', 'Toby', 'Lukas', 'Cole', 'Elliot', 'Theo', 'Robert'];
     const totals = {};
+    
+    // Initialize all users with $0
+    allUsers.forEach(user => {
+        totals[user] = 0;
+    });
     
     // Calculate totals for each person
     fines.forEach(fine => {
@@ -666,7 +673,7 @@ function renderTotalsPage() {
         totals[offender] += fine.amt;
     });
     
-    // Sort by amount owed (highest first)
+    // Sort by amount owed (highest first), but keep all users
     const sortedTotals = Object.entries(totals).sort((a, b) => b[1] - a[1]);
     
     let totalOwed = 0;
@@ -674,10 +681,12 @@ function renderTotalsPage() {
     
     sortedTotals.forEach(([person, amount]) => {
         totalOwed += amount;
+        const displayAmount = amount >= 0 ? `$${amount.toFixed(2)}` : `-$${Math.abs(amount).toFixed(2)}`;
+        const amountClass = amount >= 0 ? 'amount-owed' : 'amount-credit';
         html += `
             <div class="total-item">
                 <div class="person-name">${person}</div>
-                <div class="amount-owed">$${amount.toFixed(2)}</div>
+                <div class="${amountClass}">${displayAmount}</div>
             </div>
         `;
     });
