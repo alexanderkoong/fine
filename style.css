@@ -65,7 +65,7 @@
 .navbar {
     background-color: #5d4037; /* Rich brown color */
     color: white;
-    padding: 2.5rem 0;
+    padding: 5rem 0; /* Double the padding to make it larger */
     margin-bottom: 2.5rem;
     box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     position: relative;
@@ -141,19 +141,20 @@
 }
 
 #logoutBtn {
-    background-color: #8d6e63; /* Lighter brown shade */
-    color: white;
+    background-color: white; /* Changed to white */
+    color: #5d4037; /* Text color changed to brown for contrast */
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 700; /* Increased font weight for better visibility */
     transition: all 0.3s;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #logoutBtn:hover {
-    background-color: #a1887f; /* Even lighter brown on hover */
+    background-color: #f5f5f5; /* Light gray on hover */
+    color: #3e2723; /* Darker brown for contrast */
     transform: translateY(-2px);
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
 }
