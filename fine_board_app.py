@@ -237,10 +237,23 @@ def ensure_templates():
       <option value='Robert'>Robert</option>
     </select>
   </label><br>
-  <label>Description <textarea name='description' required></textarea></label><br>
-  <label>Amount ($)<input type='number' step='0.01' name='amount' required></label><br>
+  <label>Description <textarea name='description' id='description' required></textarea></label><br>
+  <label id='amount-label'>Amount ($)<input type='number' step='0.01' name='amount' id='amount' required></label><br>
   <button type='submit'>Submit Fine</button>
 </form>
+<script>
+document.getElementById('description').addEventListener('input', function() {
+  var amountField = document.getElementById('amount');
+  var amountLabel = document.getElementById('amount-label');
+  if (this.value.trim() === 'Fine Warning') {
+    amountField.removeAttribute('required');
+    amountLabel.innerHTML = 'Amount ($) <span style="color: #666;">(optional for warnings)</span><input type="number" step="0.01" name="amount" id="amount">';
+  } else {
+    amountField.setAttribute('required', 'required');
+    amountLabel.innerHTML = 'Amount ($)<input type="number" step="0.01" name="amount" id="amount" required>';
+  }
+});
+</script>
 {% endblock %}""",
         "totals.html": """{% extends 'base.html' %}
 {% block content %}
@@ -344,7 +357,14 @@ def add():
     if request.method == "POST":
         offender = request.form["offender"].strip()
         description = request.form["description"].strip()
-        amount = float(request.form["amount"])
+        amount_str = request.form["amount"].strip()
+        
+        # For Fine Warning, amount is optional - default to 0 if not provided
+        if description == "Fine Warning" and not amount_str:
+            amount = 0.0
+        else:
+            amount = float(amount_str) if amount_str else 0.0
+            
         get_db().execute(
             "INSERT INTO fines(date, offender, description, amount, proposer_id) VALUES (?,?,?,?,?)",
             (datetime.utcnow().isoformat(timespec="seconds"), offender, description, amount, g.user["id"]),
@@ -376,13 +396,14 @@ def totals():
         """
         SELECT offender, SUM(amount) as total_amount, COUNT(*) as fine_count
         FROM fines
+        WHERE description != 'Fine Warning'
         GROUP BY offender
         ORDER BY total_amount DESC
         """
     ).fetchall()
     
     grand_total = get_db().execute(
-        "SELECT SUM(amount) as total FROM fines"
+        "SELECT SUM(amount) as total FROM fines WHERE description != 'Fine Warning'"
     ).fetchone()["total"] or 0
     
     return render_template("totals.html", totals=totals, grand_total=grand_total)
