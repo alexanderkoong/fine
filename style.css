@@ -184,6 +184,7 @@ body {
 #finesTable {
     width: 100%;
     margin-bottom: 2rem;
+    table-layout: fixed;
 }
 
 #finesTable th {
@@ -192,6 +193,8 @@ body {
     padding: 1rem;
     font-size: 1.1rem;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 #finesTable tr:nth-child(even) {
@@ -201,6 +204,15 @@ body {
 .fine-row {
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+/* Cell text clipping */
+#finesTable td {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 .fine-row:hover {
@@ -337,29 +349,23 @@ body {
     margin-top: 2rem;
 }
 
-#addFineForm {
+/* Form styles for both fine and credit forms */
+#addFineForm, #addCreditForm {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
     align-items: end;
 }
 
-#addFineForm input {
+#addFineForm input, #addCreditForm input,
+#addFineForm select, #addCreditForm select {
     flex: 1;
     min-width: 150px;
-}
-
-#addFineForm button {
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
+    height: 38px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    cursor: pointer;
-}
-
-#addFineForm button:hover {
-    background-color: #219a52;
+    box-sizing: border-box;
 }
 
 /* Login Form Styles */
@@ -455,28 +461,43 @@ body {
 
 .fine-form h3 {
     color: #dc3545;
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
 }
 
 .credit-form h3 {
     color: #28a745;
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.fine-btn, .credit-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    height: 38px;
 }
 
 .fine-btn {
-    background-color: #dc3545 !important;
-    color: white !important;
+    background-color: #dc3545;
+    color: white;
 }
 
 .fine-btn:hover {
-    background-color: #c82333 !important;
+    background-color: #c82333;
 }
 
 .credit-btn {
-    background-color: #28a745 !important;
-    color: white !important;
+    background-color: #28a745;
+    color: white;
 }
 
 .credit-btn:hover {
-    background-color: #218838 !important;
+    background-color: #218838;
 }
 
 /* Table row styling */
