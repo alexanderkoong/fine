@@ -147,18 +147,19 @@ def ensure_templates():
     <title>Fine Board</title>
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/picnic'>
     <style>
-        body{max-width:800px;margin:2rem auto;padding:0 1rem;font-family:system-ui,-apple-system,sans-serif;}
+        body{max-width:800px;margin:0 auto;padding:0 1rem;font-family:system-ui,-apple-system,sans-serif;}
         table{width:100%;border-collapse:collapse;margin:1rem 0;}
         th,td{padding:0.5rem;text-align:left;border-bottom:1px solid #ddd;}
         th{background-color:#f8f9fa;font-weight:600;}
-        header{background-color:#fff;padding:1rem 0;margin-bottom:1rem;}
-        h1{color:#2c3e50;margin:0 0 0.5rem 0;}
-        .user-info{color:#6c757d;font-size:0.9rem;margin-bottom:1rem;}
+        header{background-color:#0a2e5c;padding:1.75rem 1rem 1.5rem;margin-bottom:2rem;color:white;border-radius:0 0 8px 8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+        h1{color:#fff;margin:0 0 0.5rem 0;padding-top:0.5rem;font-size:1.75rem;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
+        .user-info{color:#e1e7ed;font-size:0.95rem;margin-bottom:0.5rem;}
+        .user-info a{color:#fff;text-decoration:underline;}
         .actions{margin:1rem 0;}
         .actions a{display:inline-block;margin-right:1rem;padding:0.5rem 1rem;background-color:#007bff;color:white;text-decoration:none;border-radius:4px;}
         .actions a:hover{background-color:#0056b3;}
-        .remove-btn{background-color:#dc3545 !important;color:white !important;border:none !important;padding:0.25rem 0.5rem !important;font-size:0.8rem !important;margin:0 !important;border-radius:3px !important;cursor:pointer !important;}
-        .remove-btn:hover{background-color:#c82333 !important;}
+        .remove-btn{background-color:#dc3545 !important;color:white !important;border:none !important;padding:0.5rem 0.75rem !important;font-size:0.9rem !important;margin:0 !important;border-radius:4px !important;cursor:pointer !important;font-weight:500 !important;box-shadow:0 1px 3px rgba(0,0,0,0.1) !important;transition:all 0.2s !important;}
+        .remove-btn:hover{background-color:#c82333 !important;transform:translateY(-1px) !important;box-shadow:0 2px 4px rgba(0,0,0,0.2) !important;}
         .flash-messages{background-color:#d4edda;border:1px solid #c3e6cb;color:#155724;padding:0.75rem;border-radius:4px;margin-bottom:1rem;}
     </style>
 </head>
@@ -184,7 +185,7 @@ def ensure_templates():
 {% block content %}
 {% if fines %}
 <table>
-  <thead><tr><th>Date</th><th>Offender</th><th>Description</th><th>Amount ($)</th><th>Proposed By</th>{% if g.user['username'] in ['alexkoong', 'noahhernandez', 'zanderbravo', 'james lian'] %}<th>Actions</th>{% endif %}</tr></thead>
+  <thead><tr><th>Date</th><th>Offender</th><th>Description</th><th>Amount ($)</th><th>Proposed By</th><th>Actions</th></tr></thead>
   <tbody>
   {% for f in fines %}
   <tr>
@@ -193,13 +194,11 @@ def ensure_templates():
     <td>{{ f['description'] }}</td>
     <td>{{ '%.2f'|format(f['amount']) }}</td>
     <td>{{ f['proposer_name'] }}</td>
-    {% if g.user['username'] in ['alexkoong', 'noahhernandez', 'zanderbravo', 'james lian'] %}
     <td>
       <form method='post' action='{{ url_for('remove_fine', fine_id=f['id']) }}' style='display:inline;' onsubmit='return confirm("Are you sure you want to remove this fine?")'>
         <button type='submit' class='remove-btn'>Remove</button>
       </form>
     </td>
-    {% endif %}
   </tr>
   {% endfor %}
   </tbody>
@@ -392,11 +391,7 @@ def totals():
 @app.route("/remove_fine/<int:fine_id>", methods=["POST"])
 @login_required
 def remove_fine(fine_id):
-    # Only allow specific users to remove fines
-    allowed_users = ['alexkoong', 'noahhernandez', 'zanderbravo', 'james lian']
-    if g.user['username'] not in allowed_users:
-        flash("❌ You don't have permission to remove fines.")
-        return redirect(url_for("index"))
+    # Any logged in user can remove fines now
     
     # Get the fine to check if it exists
     fine = get_db().execute("SELECT * FROM fines WHERE id = ?", (fine_id,)).fetchone()
