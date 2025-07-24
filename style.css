@@ -337,6 +337,42 @@ body {
     background-color: #2980b9;
 }
 
+/* Reaction styles */
+.reply-reactions, .fine-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.reaction {
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    cursor: default;
+    user-select: none;
+}
+
+.fine-detail-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.fine-detail-actions .reactions-btn {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.fine-detail-actions .reactions-btn:hover {
+    background: #e9ecef;
+}
+
 /* Totals Page Styles */
 .totals-grid {
     display: grid;
