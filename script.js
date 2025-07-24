@@ -167,7 +167,7 @@ function renderFinesTable() {
         row.innerHTML = `
             <td>${fine.date}</td>
             <td>${fine.offender}</td>
-            <td>${isCredit ? '🌟 ' : ''}${fine.desc}</td>
+            <td>${fine.desc}</td>
             <td class="${isCredit ? 'credit-amount' : 'fine-amount'}">${formattedAmount}</td>
             <td>${fine.proposer}</td>
             <td>${fine.replies ? fine.replies.length : 0}</td>
@@ -201,7 +201,7 @@ function showFineDetail(fineIndex) {
             <p><strong>Offender:</strong> ${fine.offender}</p>
             <p><strong>Amount:</strong> <span class="${isCredit ? 'credit-amount' : 'fine-amount'}">${formattedAmount}</span></p>
             <p><strong>Proposed by:</strong> ${fine.proposer}</p>
-            <p><strong>Description:</strong> ${isCredit ? '🌟 ' : ''}${fine.desc}</p>
+            <p><strong>Description:</strong> ${fine.desc}</p>
         </div>
     `;
     
@@ -217,18 +217,180 @@ function renderReplies(fineIndex) {
     
     repliesContainer.innerHTML = '';
     
-    fine.replies.forEach(reply => {
+    fine.replies.forEach((reply, replyIndex) => {
+        // Initialize reactions array if it doesn't exist
+        if (!reply.reactions) reply.reactions = {};
+        
         const replyDiv = document.createElement('div');
         replyDiv.classList.add('reply');
+        replyDiv.dataset.replyIndex = replyIndex;
+        
+        // Create edit and reactions buttons
+        const editButton = document.createElement('button');
+        editButton.classList.add('edit-btn');
+        editButton.innerHTML = '✏️';
+        editButton.title = 'Edit reply';
+        editButton.onclick = (e) => {
+            e.stopPropagation();
+            startEditReply(fineIndex, replyIndex);
+        };
+        
+        const reactionsButton = document.createElement('button');
+        reactionsButton.classList.add('reactions-btn');
+        reactionsButton.innerHTML = '😀';
+        reactionsButton.title = 'Add reaction';
+        reactionsButton.onclick = (e) => {
+            e.stopPropagation();
+            toggleReactionsPanel(e.target, fineIndex, replyIndex);
+        };
+        
+        // Generate HTML for reactions display
+        let reactionsHTML = '';
+        if (Object.keys(reply.reactions).length > 0) {
+            reactionsHTML = '<div class="reply-reactions">';
+            for (const [emoji, users] of Object.entries(reply.reactions)) {
+                if (users.length > 0) {
+                    reactionsHTML += `<span class="reaction" title="${users.join(', ')}">${emoji} ${users.length}</span>`;
+                }
+            }
+            reactionsHTML += '</div>';
+        }
+        
         replyDiv.innerHTML = `
             <div class="reply-header">
                 <strong>${reply.author}</strong>
                 <span class="reply-time">${new Date(reply.timestamp).toLocaleString()}</span>
+                <div class="reply-actions"></div>
             </div>
-            <div class="reply-content">${reply.content}</div>
+            <div class="reply-content" data-reply-index="${replyIndex}">${reply.content}</div>
+            ${reactionsHTML}
         `;
+        
+        // Add action buttons
+        const actionsDiv = replyDiv.querySelector('.reply-actions');
+        actionsDiv.appendChild(editButton);
+        actionsDiv.appendChild(reactionsButton);
+        
         repliesContainer.appendChild(replyDiv);
     });
+}
+
+// Start editing a reply
+function startEditReply(fineIndex, replyIndex) {
+    const fine = fines[fineIndex];
+    if (!fine || !fine.replies || !fine.replies[replyIndex]) return;
+    
+    const reply = fine.replies[replyIndex];
+    const contentElement = document.querySelector(`.reply-content[data-reply-index="${replyIndex}"]`);
+    
+    if (!contentElement) return;
+    
+    const originalContent = reply.content;
+    
+    // Replace content with editable textarea
+    contentElement.innerHTML = `
+        <textarea class="edit-reply-textarea">${originalContent}</textarea>
+        <div class="edit-actions">
+            <button class="save-edit-btn">Save</button>
+            <button class="cancel-edit-btn">Cancel</button>
+        </div>
+    `;
+    
+    const textarea = contentElement.querySelector('.edit-reply-textarea');
+    textarea.focus();
+    
+    // Save button
+    const saveBtn = contentElement.querySelector('.save-edit-btn');
+    saveBtn.addEventListener('click', () => {
+        const newContent = textarea.value.trim();
+        if (newContent) {
+            fine.replies[replyIndex].content = newContent;
+            fine.replies[replyIndex].edited = true;
+            fine.replies[replyIndex].editTimestamp = new Date().toISOString();
+            saveFines();
+            renderReplies(fineIndex);
+        }
+    });
+    
+    // Cancel button
+    const cancelBtn = contentElement.querySelector('.cancel-edit-btn');
+    cancelBtn.addEventListener('click', () => {
+        renderReplies(fineIndex);
+    });
+}
+
+// Toggle reactions panel
+function toggleReactionsPanel(button, fineIndex, replyIndex) {
+    // Remove any existing panel first
+    const existingPanel = document.querySelector('.reactions-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+    }
+    
+    // Create reactions panel
+    const reactionsPanel = document.createElement('div');
+    reactionsPanel.className = 'reactions-panel';
+    
+    const emojis = ['👍', '👎', '😀', '😍', '🎉', '😮', '😢', '❤️'];
+    
+    emojis.forEach(emoji => {
+        const emojiBtn = document.createElement('button');
+        emojiBtn.className = 'emoji-btn';
+        emojiBtn.textContent = emoji;
+        emojiBtn.addEventListener('click', () => {
+            addReaction(fineIndex, replyIndex, emoji);
+            reactionsPanel.remove();
+        });
+        reactionsPanel.appendChild(emojiBtn);
+    });
+    
+    // Position panel relative to button
+    const rect = button.getBoundingClientRect();
+    reactionsPanel.style.position = 'absolute';
+    reactionsPanel.style.top = `${rect.bottom + window.scrollY}px`;
+    reactionsPanel.style.left = `${rect.left + window.scrollX}px`;
+    
+    // Add to document
+    document.body.appendChild(reactionsPanel);
+    
+    // Close panel when clicking outside
+    document.addEventListener('click', function closePanel(e) {
+        if (!reactionsPanel.contains(e.target) && e.target !== button) {
+            reactionsPanel.remove();
+            document.removeEventListener('click', closePanel);
+        }
+    });
+}
+
+// Add reaction to a reply
+function addReaction(fineIndex, replyIndex, emoji) {
+    const fine = fines[fineIndex];
+    if (!fine || !fine.replies || !fine.replies[replyIndex]) return;
+    
+    const reply = fine.replies[replyIndex];
+    
+    // Initialize reactions if needed
+    if (!reply.reactions) reply.reactions = {};
+    if (!reply.reactions[emoji]) reply.reactions[emoji] = [];
+    
+    // Check if user already reacted with this emoji
+    const userIndex = reply.reactions[emoji].indexOf(currentUser);
+    
+    if (userIndex === -1) {
+        // Add reaction
+        reply.reactions[emoji].push(currentUser);
+    } else {
+        // Remove reaction
+        reply.reactions[emoji].splice(userIndex, 1);
+        
+        // Clean up empty arrays
+        if (reply.reactions[emoji].length === 0) {
+            delete reply.reactions[emoji];
+        }
+    }
+    
+    saveFines();
+    renderReplies(fineIndex);
 }
 
 // Add reply to a fine
