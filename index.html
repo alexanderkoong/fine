@@ -14,6 +14,7 @@
             <h2>Login to Fine System</h2>
             <form id="loginForm">
                 <input type="text" id="usernameInput" placeholder="Enter your username" required>
+                <input type="password" id="passwordInput" placeholder="Enter password" required>
                 <button type="submit">Login</button>
             </form>
         </div>
@@ -25,6 +26,10 @@
         <nav class="navbar">
             <div class="navbar-content">
                 <h1>Team Fine System</h1>
+                <div class="nav-links">
+                    <button id="finesPageBtn" class="nav-btn active">Fines</button>
+                    <button id="totalsPageBtn" class="nav-btn">Totals</button>
+                </div>
                 <div class="user-info">
                     <span id="userDisplay"></span>
                     <button id="logoutBtn">Logout</button>
@@ -32,32 +37,65 @@
             </div>
         </nav>
 
-        <!-- Fines Table -->
-        <div class="container">
-            <h2>Fines</h2>
-            <table id="finesTable">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Offender</th>
-                        <th>Description</th>
-                        <th>Amount ($)</th>
-                        <th>Proposed By</th>
-                    </tr>
-                </thead>
-                <tbody id="finesTableBody">
-                </tbody>
-            </table>
+        <!-- Fines Page -->
+        <div id="finesPage" class="page">
+            <div class="container">
+                <h2>Fines</h2>
+                <table id="finesTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Offender</th>
+                            <th>Description</th>
+                            <th>Amount ($)</th>
+                            <th>Proposed By</th>
+                            <th>Replies</th>
+                        </tr>
+                    </thead>
+                    <tbody id="finesTableBody">
+                    </tbody>
+                </table>
 
-            <!-- Add Fine Form (only visible to upper role) -->
-            <div id="addFineSection" style="display: none;">
-                <h3>Add New Fine</h3>
-                <form id="addFineForm">
-                    <input type="text" id="offenderInput" placeholder="Offender" required>
-                    <input type="text" id="descriptionInput" placeholder="Description" required>
-                    <input type="number" id="amountInput" placeholder="Amount ($)" min="0" step="0.01" required>
-                    <button type="submit">Add Fine</button>
-                </form>
+                <!-- Add Fine Form (only visible to upper role) -->
+                <div id="addFineSection" style="display: none;">
+                    <h3>Add New Fine</h3>
+                    <form id="addFineForm">
+                        <input type="text" id="offenderInput" placeholder="Offender" required>
+                        <input type="text" id="descriptionInput" placeholder="Description" required>
+                        <input type="number" id="amountInput" placeholder="Amount ($)" min="0" step="0.01" required>
+                        <button type="submit">Add Fine</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Totals Page -->
+        <div id="totalsPage" class="page" style="display: none;">
+            <div class="container">
+                <h2>Fine Totals</h2>
+                <div id="totalsContainer">
+                </div>
+            </div>
+        </div>
+
+        <!-- Fine Detail Modal -->
+        <div id="fineDetailModal" class="modal" style="display: none;">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h3 id="fineDetailTitle"></h3>
+                    <button id="closeFineModal">&times;</button>
+                </div>
+                <div id="fineDetailContent">
+                </div>
+                <div class="replies-section">
+                    <h4>Discussion</h4>
+                    <div id="repliesContainer">
+                    </div>
+                    <form id="replyForm">
+                        <textarea id="replyInput" placeholder="Add a reply..." required></textarea>
+                        <button type="submit">Reply</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
