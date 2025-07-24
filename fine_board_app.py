@@ -292,7 +292,7 @@ def load_logged_in_user():
 
 @app.route("/init")
 def init():
-    """Initialize DB and add two demo users."""
+    """Initialize DB and add demo users and sample fines."""
     init_db()
 
     db = get_db()
@@ -310,7 +310,20 @@ def init():
             ],
         )
         db.commit()
-    return "✅ Database initialized & demo users added. Go to /login."  # plain text response
+    
+    # Add sample fines if none exist
+    if db.execute("SELECT COUNT(*) FROM fines").fetchone()[0] == 0:
+        db.executemany(
+            "INSERT INTO fines(date, offender, description, amount, proposer_id) VALUES (?,?,?,?,?)",
+            [
+                (datetime.utcnow().isoformat(timespec="seconds"), "Koong", "Late to meeting", 5.00, 1),
+                (datetime.utcnow().isoformat(timespec="seconds"), "Noah", "Left dishes in sink", 3.50, 1),
+                (datetime.utcnow().isoformat(timespec="seconds"), "Zander", "Forgot to take out trash", 2.00, 3),
+            ],
+        )
+        db.commit()
+    
+    return "✅ Database initialized with demo users and sample fines. Go to /login."  # plain text response
 
 
 @app.route("/")
