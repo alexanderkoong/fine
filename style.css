@@ -441,6 +441,69 @@ body {
     to { opacity: 0; }
 }
 
+/* Credit and Fine Form Layout */
+.forms-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.form-column {
+    flex: 1;
+    min-width: 300px;
+}
+
+.fine-form h3 {
+    color: #dc3545;
+}
+
+.credit-form h3 {
+    color: #28a745;
+}
+
+.fine-btn {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.fine-btn:hover {
+    background-color: #c82333 !important;
+}
+
+.credit-btn {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.credit-btn:hover {
+    background-color: #218838 !important;
+}
+
+/* Table row styling */
+.credit-row {
+    background-color: #f0f8f1 !important;
+}
+
+.credit-amount {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.fine-amount {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Detail modal styling */
+.credit-details {
+    background-color: #f0f8f1;
+    border-left: 4px solid #28a745;
+}
+
+.fine-details {
+    border-left: 4px solid #dc3545;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .navbar-content {
@@ -456,12 +519,14 @@ body {
         order: 3;
     }
     
-    #addFineForm {
+    #addFineForm, #addCreditForm {
         flex-direction: column;
     }
     
     #addFineForm input,
-    #addFineForm button {
+    #addFineForm button,
+    #addCreditForm input,
+    #addCreditForm button {
         width: 100%;
     }
     
@@ -478,5 +543,10 @@ body {
         flex-direction: column;
         text-align: center;
         gap: 0.5rem;
+    }
+    
+    .forms-container {
+        flex-direction: column;
+        gap: 2rem;
     }
 }

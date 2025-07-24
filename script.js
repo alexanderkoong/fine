@@ -20,6 +20,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 const finesTableBody = document.getElementById('finesTableBody');
 const addFineSection = document.getElementById('addFineSection');
 const addFineForm = document.getElementById('addFineForm');
+const addCreditForm = document.getElementById('addCreditForm');
 const finesPageBtn = document.getElementById('finesPageBtn');
 const totalsPageBtn = document.getElementById('totalsPageBtn');
 const finesPage = document.getElementById('finesPage');
@@ -139,6 +140,16 @@ function renderFinesTable() {
         row.classList.add('fine-row');
         row.dataset.fineIndex = index;
         
+        // Determine if this is a fine or credit
+        const isCredit = fine.amt < 0;
+        
+        // Add appropriate class for styling
+        if (isCredit) {
+            row.classList.add('credit-row');
+        } else {
+            row.classList.add('fine-row');
+        }
+        
         // Create a remove button
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
@@ -148,11 +159,16 @@ function renderFinesTable() {
             removeFine(index);
         };
         
+        // Format amount based on whether it's a fine or credit
+        const formattedAmount = isCredit 
+            ? `-$${Math.abs(fine.amt).toFixed(2)}` 
+            : `$${fine.amt.toFixed(2)}`;
+            
         row.innerHTML = `
             <td>${fine.date}</td>
             <td>${fine.offender}</td>
-            <td>${fine.desc}</td>
-            <td>$${fine.amt.toFixed(2)}</td>
+            <td>${isCredit ? '🌟 ' : ''}${fine.desc}</td>
+            <td class="${isCredit ? 'credit-amount' : 'fine-amount'}">${formattedAmount}</td>
             <td>${fine.proposer}</td>
             <td>${fine.replies ? fine.replies.length : 0}</td>
             <td></td>
@@ -171,14 +187,21 @@ function showFineDetail(fineIndex) {
     const fine = fines[fineIndex];
     if (!fine) return;
     
-    fineDetailTitle.textContent = `Fine: ${fine.desc}`;
+    // Determine if this is a fine or credit
+    const isCredit = fine.amt < 0;
+    const type = isCredit ? 'Credit' : 'Fine';
+    const formattedAmount = isCredit 
+        ? `-$${Math.abs(fine.amt).toFixed(2)}` 
+        : `$${fine.amt.toFixed(2)}`;
+    
+    fineDetailTitle.textContent = `${type}: ${fine.desc}`;
     fineDetailContent.innerHTML = `
-        <div class="fine-details">
+        <div class="fine-details ${isCredit ? 'credit-details' : ''}">
             <p><strong>Date:</strong> ${fine.date}</p>
             <p><strong>Offender:</strong> ${fine.offender}</p>
-            <p><strong>Amount:</strong> $${fine.amt.toFixed(2)}</p>
+            <p><strong>Amount:</strong> <span class="${isCredit ? 'credit-amount' : 'fine-amount'}">${formattedAmount}</span></p>
             <p><strong>Proposed by:</strong> ${fine.proposer}</p>
-            <p><strong>Description:</strong> ${fine.desc}</p>
+            <p><strong>Description:</strong> ${isCredit ? '🌟 ' : ''}${fine.desc}</p>
         </div>
     `;
     
@@ -358,6 +381,36 @@ function setupEventListeners() {
             
             // Clear form
             addFineForm.reset();
+        }
+    });
+    
+    // Add credit form
+    addCreditForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (currentRole !== 'admin') return;
+        
+        const offender = document.getElementById('creditOffenderInput').value.trim();
+        const description = document.getElementById('creditDescriptionInput').value.trim();
+        const amount = parseFloat(document.getElementById('creditAmountInput').value);
+        
+        if (offender && description && !isNaN(amount)) {
+            const newCredit = {
+                id: Date.now(),
+                offender: offender,
+                desc: description,
+                amt: -amount, // Store as negative value to represent a credit
+                proposer: currentUser,
+                date: new Date().toISOString().slice(0, 10),
+                replies: []
+            };
+            
+            fines.push(newCredit); // Add to the same fines array
+            saveFines();
+            renderFinesTable();
+            
+            // Clear form
+            addCreditForm.reset();
         }
     });
     
