@@ -157,7 +157,7 @@ def ensure_templates():
         .actions{margin:1rem 0;}
         .actions a{display:inline-block;margin-right:1rem;padding:0.5rem 1rem;background-color:#007bff;color:white;text-decoration:none;border-radius:4px;}
         .actions a:hover{background-color:#0056b3;}
-        .remove-btn{background-color:#dc3545 !important;padding:0.25rem 0.5rem !important;font-size:0.8rem !important;margin:0 !important;}
+        .remove-btn{background-color:#dc3545 !important;color:white !important;border:none !important;padding:0.25rem 0.5rem !important;font-size:0.8rem !important;margin:0 !important;border-radius:3px !important;cursor:pointer !important;}
         .remove-btn:hover{background-color:#c82333 !important;}
         .flash-messages{background-color:#d4edda;border:1px solid #c3e6cb;color:#155724;padding:0.75rem;border-radius:4px;margin-bottom:1rem;}
     </style>
@@ -232,7 +232,7 @@ def ensure_templates():
       <option value='James'>James</option>
       <option value='Toby'>Toby</option>
       <option value='Lukas'>Lukas</option>
-      <option value='Eliot'>Eliot</option>
+      <option value='Elliot'>Elliot</option>
       <option value='Cole'>Cole</option>
       <option value='Theo'>Theo</option>
       <option value='Robert'>Robert</option>
@@ -303,6 +303,10 @@ def init():
             [
                 ("captain", generate_password_hash("secret"), "upper"),
                 ("rookie", generate_password_hash("password"), "viewer"),
+                ("alexkoong", generate_password_hash("password123"), "upper"),
+                ("noahhernandez", generate_password_hash("password123"), "upper"),
+                ("zanderbravo", generate_password_hash("password123"), "upper"),
+                ("james lian", generate_password_hash("password123"), "upper"),
             ],
         )
         db.commit()
