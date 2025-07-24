@@ -368,6 +368,33 @@ body {
     box-sizing: border-box;
 }
 
+/* Edit Fine/Credit Modal */
+#editFineModal .form-group {
+    margin-bottom: 1rem;
+}
+
+#editFineModal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+#editFineModal input,
+#editFineModal select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 0.5rem;
+}
+
+.edited-info {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
 /* Login Form Styles */
 #loginForm input {
     display: block;
@@ -411,6 +438,32 @@ body {
 }
 
 /* Remove button */
+/* Fine action buttons */
+.fine-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.edit-fine-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+
+.edit-fine-btn:hover {
+    background-color: #0069d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 .remove-fine-btn {
     background-color: #dc3545;
     color: white;
@@ -432,6 +485,7 @@ body {
 
 /* Flash message */
 .flash-message {
+    margin: 0 0 1rem 0;
     background-color: #d4edda;
     border: 1px solid #c3e6cb;
     color: #155724;
@@ -440,6 +494,7 @@ body {
     margin-bottom: 1rem;
     animation: fadeOut 3s forwards;
     animation-delay: 2s;
+    max-width: 100%;
 }
 
 @keyframes fadeOut {

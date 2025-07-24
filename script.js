@@ -150,13 +150,26 @@ function renderFinesTable() {
             row.classList.add('fine-row');
         }
         
-        // Create a remove button
+        // Create action buttons
+        const actionsContainer = document.createElement('div');
+        actionsContainer.className = 'fine-actions';
+        
+        // Remove button
         const removeButton = document.createElement('button');
         removeButton.textContent = 'Remove';
         removeButton.className = 'remove-fine-btn';
         removeButton.onclick = (e) => {
             e.stopPropagation(); // Prevent opening fine details
             removeFine(index);
+        };
+        
+        // Edit button
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.className = 'edit-fine-btn';
+        editButton.onclick = (e) => {
+            e.stopPropagation(); // Prevent opening fine details
+            editFine(index);
         };
         
         // Format amount based on whether it's a fine or credit
@@ -174,8 +187,10 @@ function renderFinesTable() {
             <td></td>
         `;
         
-        // Add the remove button to the last cell
-        row.lastElementChild.appendChild(removeButton);
+        // Add action buttons to the last cell
+        actionsContainer.appendChild(editButton);
+        actionsContainer.appendChild(removeButton);
+        row.lastElementChild.appendChild(actionsContainer);
         
         row.addEventListener('click', () => showFineDetail(index));
         finesTableBody.appendChild(row);
@@ -195,6 +210,14 @@ function showFineDetail(fineIndex) {
         : `$${fine.amt.toFixed(2)}`;
     
     fineDetailTitle.textContent = `${type}: ${fine.desc}`;
+    
+    // Add edited info if applicable
+    let editedInfo = '';
+    if (fine.edited) {
+        const editDate = new Date(fine.editTimestamp).toLocaleString();
+        editedInfo = `<p class="edited-info"><em>Last edited on ${editDate}</em></p>`;
+    }
+    
     fineDetailContent.innerHTML = `
         <div class="fine-details ${isCredit ? 'credit-details' : ''}">
             <p><strong>Date:</strong> ${fine.date}</p>
@@ -202,6 +225,7 @@ function showFineDetail(fineIndex) {
             <p><strong>Amount:</strong> <span class="${isCredit ? 'credit-amount' : 'fine-amount'}">${formattedAmount}</span></p>
             <p><strong>Proposed by:</strong> ${fine.proposer}</p>
             <p><strong>Description:</strong> ${fine.desc}</p>
+            ${editedInfo}
         </div>
     `;
     
@@ -468,6 +492,114 @@ function renderTotalsPage() {
 // Save fines to localStorage
 function saveFines() {
     localStorage.setItem('fines', JSON.stringify(fines));
+}
+
+// Edit fine/credit
+function editFine(index) {
+    const fine = fines[index];
+    if (!fine) return;
+    
+    // Create edit modal
+    const editModal = document.createElement('div');
+    editModal.className = 'modal';
+    editModal.id = 'editFineModal';
+    
+    // Determine if it's a fine or credit
+    const isCredit = fine.amt < 0;
+    const type = isCredit ? 'Credit' : 'Fine';
+    
+    // Set up modal content
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3>Edit ${type}</h3>
+            <button id="closeEditModal">&times;</button>
+        </div>
+        <form id="editFineForm">
+            <div class="form-group">
+                <label for="editOffenderInput">Offender:</label>
+                <select id="editOffenderInput" required>
+                    <option value="">Select an offender</option>
+                    <option value="Koong" ${fine.offender === 'Koong' ? 'selected' : ''}>Koong</option>
+                    <option value="Noah" ${fine.offender === 'Noah' ? 'selected' : ''}>Noah</option>
+                    <option value="Zander" ${fine.offender === 'Zander' ? 'selected' : ''}>Zander</option>
+                    <option value="James" ${fine.offender === 'James' ? 'selected' : ''}>James</option>
+                    <option value="Toby" ${fine.offender === 'Toby' ? 'selected' : ''}>Toby</option>
+                    <option value="Lukas" ${fine.offender === 'Lukas' ? 'selected' : ''}>Lukas</option>
+                    <option value="Elliot" ${fine.offender === 'Elliot' ? 'selected' : ''}>Elliot</option>
+                    <option value="Cole" ${fine.offender === 'Cole' ? 'selected' : ''}>Cole</option>
+                    <option value="Theo" ${fine.offender === 'Theo' ? 'selected' : ''}>Theo</option>
+                    <option value="Robert" ${fine.offender === 'Robert' ? 'selected' : ''}>Robert</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="editDescriptionInput">Description:</label>
+                <input type="text" id="editDescriptionInput" value="${fine.desc}" required>
+            </div>
+            <div class="form-group">
+                <label for="editAmountInput">Amount ($):</label>
+                <input type="number" id="editAmountInput" value="${Math.abs(fine.amt)}" min="0" step="0.01" required>
+            </div>
+            <button type="submit" class="${isCredit ? 'credit-btn' : 'fine-btn'}">Save Changes</button>
+        </form>
+    `;
+    
+    editModal.appendChild(modalContent);
+    document.body.appendChild(editModal);
+    
+    // Close button functionality
+    const closeEditModal = document.getElementById('closeEditModal');
+    closeEditModal.addEventListener('click', () => {
+        editModal.remove();
+    });
+    
+    // Click outside to close
+    editModal.addEventListener('click', function(e) {
+        if (e.target === editModal) {
+            editModal.remove();
+        }
+    });
+    
+    // Form submission
+    const editFineForm = document.getElementById('editFineForm');
+    editFineForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const offender = document.getElementById('editOffenderInput').value;
+        const description = document.getElementById('editDescriptionInput').value.trim();
+        const amount = parseFloat(document.getElementById('editAmountInput').value);
+        
+        if (offender && description && !isNaN(amount)) {
+            // Update the fine object
+            fine.offender = offender;
+            fine.desc = description;
+            fine.amt = isCredit ? -Math.abs(amount) : Math.abs(amount); // Maintain negative value for credits
+            
+            // Add edit timestamp
+            fine.edited = true;
+            fine.editTimestamp = new Date().toISOString();
+            
+            // Save and update UI
+            saveFines();
+            renderFinesTable();
+            
+            // Close the modal
+            editModal.remove();
+            
+            // Show confirmation message
+            const message = document.createElement('div');
+            message.className = 'flash-message';
+            message.textContent = `${type} updated successfully`;
+            document.querySelector('.container').insertBefore(message, document.querySelector('h2'));
+            
+            // Auto-remove message after 3 seconds
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
+    });
 }
 
 // Setup event listeners
