@@ -56,9 +56,10 @@ function loadStoredData() {
     
     if (storedFines) {
         fines = JSON.parse(storedFines);
-        // Ensure each fine has replies array and id
+        // Ensure each fine has replies array, reactions object, and id
         fines.forEach((fine, index) => {
             if (!fine.replies) fine.replies = [];
+            if (!fine.reactions) fine.reactions = {};
             if (!fine.id) fine.id = Date.now() + index;
         });
         saveFines();
@@ -218,6 +219,18 @@ function showFineDetail(fineIndex) {
         editedInfo = `<p class="edited-info"><em>Last edited on ${editDate}</em></p>`;
     }
     
+    // Generate HTML for reactions display if any exist
+    let reactionsHTML = '';
+    if (fine.reactions && Object.keys(fine.reactions).length > 0) {
+        reactionsHTML = '<div class="fine-reactions">';
+        for (const [emoji, users] of Object.entries(fine.reactions)) {
+            if (users.length > 0) {
+                reactionsHTML += `<span class="reaction" title="${users.join(', ')}">${emoji} ${users.length}</span>`;
+            }
+        }
+        reactionsHTML += '</div>';
+    }
+    
     fineDetailContent.innerHTML = `
         <div class="fine-details ${isCredit ? 'credit-details' : ''}">
             <p><strong>Date:</strong> ${fine.date}</p>
@@ -226,6 +239,10 @@ function showFineDetail(fineIndex) {
             <p><strong>Proposed by:</strong> ${fine.proposer}</p>
             <p><strong>Description:</strong> ${fine.desc}</p>
             ${editedInfo}
+        </div>
+        ${reactionsHTML}
+        <div class="fine-detail-actions">
+            <button class="reactions-btn" onclick="toggleFineReactionsPanel(event, ${fineIndex})">😀 Add Reaction</button>
         </div>
     `;
     
@@ -343,7 +360,7 @@ function startEditReply(fineIndex, replyIndex) {
     });
 }
 
-// Toggle reactions panel
+// Toggle reactions panel for replies
 function toggleReactionsPanel(button, fineIndex, replyIndex) {
     // Remove any existing panel first
     const existingPanel = document.querySelector('.reactions-panel');
@@ -384,6 +401,80 @@ function toggleReactionsPanel(button, fineIndex, replyIndex) {
             document.removeEventListener('click', closePanel);
         }
     });
+}
+
+// Toggle reactions panel for fines/credits
+function toggleFineReactionsPanel(event, fineIndex) {
+    event.stopPropagation(); // Prevent closing the modal
+    
+    // Remove any existing panel first
+    const existingPanel = document.querySelector('.reactions-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+    }
+    
+    // Create reactions panel
+    const reactionsPanel = document.createElement('div');
+    reactionsPanel.className = 'reactions-panel';
+    
+    const emojis = ['👍', '👎', '😀', '😍', '🎉', '😮', '😢', '❤️', '💯', '🔥'];
+    
+    emojis.forEach(emoji => {
+        const emojiBtn = document.createElement('button');
+        emojiBtn.className = 'emoji-btn';
+        emojiBtn.textContent = emoji;
+        emojiBtn.addEventListener('click', () => {
+            addFineReaction(fineIndex, emoji);
+            reactionsPanel.remove();
+        });
+        reactionsPanel.appendChild(emojiBtn);
+    });
+    
+    // Position panel relative to button
+    const rect = event.target.getBoundingClientRect();
+    reactionsPanel.style.position = 'absolute';
+    reactionsPanel.style.top = `${rect.bottom + window.scrollY}px`;
+    reactionsPanel.style.left = `${rect.left + window.scrollX}px`;
+    
+    // Add to document
+    document.body.appendChild(reactionsPanel);
+    
+    // Close panel when clicking outside
+    document.addEventListener('click', function closePanel(e) {
+        if (!reactionsPanel.contains(e.target) && e.target !== event.target) {
+            reactionsPanel.remove();
+            document.removeEventListener('click', closePanel);
+        }
+    });
+}
+
+// Add reaction to a fine/credit
+function addFineReaction(fineIndex, emoji) {
+    const fine = fines[fineIndex];
+    if (!fine) return;
+    
+    // Initialize reactions if needed
+    if (!fine.reactions) fine.reactions = {};
+    if (!fine.reactions[emoji]) fine.reactions[emoji] = [];
+    
+    // Check if user already reacted with this emoji
+    const userIndex = fine.reactions[emoji].indexOf(currentUser);
+    
+    if (userIndex === -1) {
+        // Add reaction
+        fine.reactions[emoji].push(currentUser);
+    } else {
+        // Remove reaction
+        fine.reactions[emoji].splice(userIndex, 1);
+        
+        // Clean up empty arrays
+        if (fine.reactions[emoji].length === 0) {
+            delete fine.reactions[emoji];
+        }
+    }
+    
+    saveFines();
+    showFineDetail(fineIndex); // Refresh the detail view
 }
 
 // Add reaction to a reply
