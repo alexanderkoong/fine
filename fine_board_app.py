@@ -345,6 +345,7 @@ def index():
         """
         SELECT f.*, u.username AS proposer_name
         FROM fines f JOIN users u ON f.proposer_id = u.id
+        WHERE f.description != 'Fine Warning'
         ORDER BY date DESC
         """
     ).fetchall()
