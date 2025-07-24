@@ -61,6 +61,11 @@
     color: #000;
 }
 
+/* Global Font Settings */
+body {
+    font-family: 'EB Garamond', serif;
+}
+
 /* Navbar Styles */
 .navbar {
     background-color: #5d4037; /* Rich brown color */
@@ -81,7 +86,7 @@
     align-items: center;
     max-width: 1200px;
     width: 100%;
-    margin: 0 auto;
+    margin: 0;
     background-color: rgba(0,0,0,0.1); /* Slightly darker background for better contrast */
     border-radius: 0 0 8px 8px; /* Rounded only at bottom corners */
     padding: 1.5rem;
@@ -90,10 +95,12 @@
 
 .navbar h1 {
     margin: 0 0 1rem 0;
-    font-size: 2.25rem;
+    font-size: 2.5rem;
     text-shadow: 2px 2px 3px rgba(0,0,0,0.5);
-    padding-top: 0.75rem;
+    padding-top: 0;
     letter-spacing: 0.05rem;
+    font-family: 'EB Garamond', serif;
+    font-weight: 600;
 }
 
 .nav-links {
