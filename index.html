@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Fine System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic@7.1.0/picnic.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Login to Fine System</h2>
+            <form id="loginForm">
+                <input type="text" id="usernameInput" placeholder="Enter your username" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" style="display: none;">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <h1>Team Fine System</h1>
+                <div class="user-info">
+                    <span id="userDisplay"></span>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Fines Table -->
+        <div class="container">
+            <h2>Fines</h2>
+            <table id="finesTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Offender</th>
+                        <th>Description</th>
+                        <th>Amount ($)</th>
+                        <th>Proposed By</th>
+                    </tr>
+                </thead>
+                <tbody id="finesTableBody">
+                </tbody>
+            </table>
+
+            <!-- Add Fine Form (only visible to upper role) -->
+            <div id="addFineSection" style="display: none;">
+                <h3>Add New Fine</h3>
+                <form id="addFineForm">
+                    <input type="text" id="offenderInput" placeholder="Offender" required>
+                    <input type="text" id="descriptionInput" placeholder="Description" required>
+                    <input type="number" id="amountInput" placeholder="Amount ($)" min="0" step="0.01" required>
+                    <button type="submit">Add Fine</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
