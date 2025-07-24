@@ -60,25 +60,51 @@
 
                 <!-- Add Fine Form (only visible to upper role) -->
                 <div id="addFineSection" style="display: none;">
-                    <h3>Add New Fine</h3>
-                    <form id="addFineForm">
-                        <select id="offenderInput" required>
-                            <option value="">Select an offender</option>
-                            <option value="Koong">Koong</option>
-                            <option value="Noah">Noah</option>
-                            <option value="Zander">Zander</option>
-                            <option value="James">James</option>
-                            <option value="Toby">Toby</option>
-                            <option value="Lukas">Lukas</option>
-                            <option value="Elliot">Elliot</option>
-                            <option value="Cole">Cole</option>
-                            <option value="Theo">Theo</option>
-                            <option value="Robert">Robert</option>
-                        </select>
-                        <input type="text" id="descriptionInput" placeholder="Description" required>
-                        <input type="number" id="amountInput" placeholder="Amount ($)" min="0" step="0.01" required>
-                        <button type="submit">Add Fine</button>
-                    </form>
+                    <div class="forms-container">
+                        <div class="form-column fine-form">
+                            <h3>Add New Fine</h3>
+                            <form id="addFineForm">
+                                <select id="offenderInput" required>
+                                    <option value="">Select an offender</option>
+                                    <option value="Koong">Koong</option>
+                                    <option value="Noah">Noah</option>
+                                    <option value="Zander">Zander</option>
+                                    <option value="James">James</option>
+                                    <option value="Toby">Toby</option>
+                                    <option value="Lukas">Lukas</option>
+                                    <option value="Elliot">Elliot</option>
+                                    <option value="Cole">Cole</option>
+                                    <option value="Theo">Theo</option>
+                                    <option value="Robert">Robert</option>
+                                </select>
+                                <input type="text" id="descriptionInput" placeholder="Description" required>
+                                <input type="number" id="amountInput" placeholder="Amount ($)" min="0" step="0.01" required>
+                                <button type="submit" class="fine-btn">Add Fine</button>
+                            </form>
+                        </div>
+
+                        <div class="form-column credit-form">
+                            <h3>Add New Credit</h3>
+                            <form id="addCreditForm">
+                                <select id="creditOffenderInput" required>
+                                    <option value="">Select an offender</option>
+                                    <option value="Koong">Koong</option>
+                                    <option value="Noah">Noah</option>
+                                    <option value="Zander">Zander</option>
+                                    <option value="James">James</option>
+                                    <option value="Toby">Toby</option>
+                                    <option value="Lukas">Lukas</option>
+                                    <option value="Elliot">Elliot</option>
+                                    <option value="Cole">Cole</option>
+                                    <option value="Theo">Theo</option>
+                                    <option value="Robert">Robert</option>
+                                </select>
+                                <input type="text" id="creditDescriptionInput" placeholder="Description" required>
+                                <input type="number" id="creditAmountInput" placeholder="Amount ($)" min="0" step="0.01" required>
+                                <button type="submit" class="credit-btn">Add Credit</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
