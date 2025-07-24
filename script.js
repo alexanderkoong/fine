@@ -117,6 +117,14 @@ function showPage(page) {
     
     if (page === 'fines') {
         renderFinesTable();
+        
+        // Update the table header to include Actions column
+        const tableHeader = document.querySelector('#finesTable thead tr');
+        if (tableHeader && tableHeader.children.length === 6) {
+            const actionsHeader = document.createElement('th');
+            actionsHeader.textContent = 'Actions';
+            tableHeader.appendChild(actionsHeader);
+        }
     } else if (page === 'totals') {
         renderTotalsPage();
     }
@@ -130,6 +138,16 @@ function renderFinesTable() {
         const row = document.createElement('tr');
         row.classList.add('fine-row');
         row.dataset.fineIndex = index;
+        
+        // Create a remove button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.className = 'remove-fine-btn';
+        removeButton.onclick = (e) => {
+            e.stopPropagation(); // Prevent opening fine details
+            removeFine(index);
+        };
+        
         row.innerHTML = `
             <td>${fine.date}</td>
             <td>${fine.offender}</td>
@@ -137,7 +155,11 @@ function renderFinesTable() {
             <td>$${fine.amt.toFixed(2)}</td>
             <td>${fine.proposer}</td>
             <td>${fine.replies ? fine.replies.length : 0}</td>
+            <td></td>
         `;
+        
+        // Add the remove button to the last cell
+        row.lastElementChild.appendChild(removeButton);
         
         row.addEventListener('click', () => showFineDetail(index));
         finesTableBody.appendChild(row);
@@ -201,6 +223,26 @@ function addReply(fineIndex, content) {
     saveFines();
     renderReplies(fineIndex);
     renderFinesTable(); // Update reply count in table
+}
+
+// Remove a fine
+function removeFine(index) {
+    if (confirm('Are you sure you want to remove this fine?')) {
+        fines.splice(index, 1);
+        saveFines();
+        renderFinesTable();
+        
+        // Show confirmation message
+        const message = document.createElement('div');
+        message.className = 'flash-message';
+        message.textContent = 'Fine removed successfully';
+        document.querySelector('.container').insertBefore(message, document.querySelector('h2'));
+        
+        // Auto-remove message after 3 seconds
+        setTimeout(() => {
+            message.remove();
+        }, 3000);
+    }
 }
 
 // Render totals page
