@@ -238,19 +238,19 @@ def ensure_templates():
     </select>
   </label><br>
   <label>Description <textarea name='description' id='description' required></textarea></label><br>
-  <label id='amount-label'>Amount ($)<input type='number' step='0.01' name='amount' id='amount' required></label><br>
+  <label id='amount-label'>Amount ($) <span id='amount-note' style='color: #666;'></span><input type='number' step='0.01' name='amount' id='amount' required></label><br>
   <button type='submit'>Submit Fine</button>
 </form>
 <script>
 document.getElementById('description').addEventListener('input', function() {
   var amountField = document.getElementById('amount');
-  var amountLabel = document.getElementById('amount-label');
+  var amountNote = document.getElementById('amount-note');
   if (this.value.trim() === 'Fine Warning') {
     amountField.removeAttribute('required');
-    amountLabel.innerHTML = 'Amount ($) <span style="color: #666;">(optional for warnings)</span><input type="number" step="0.01" name="amount" id="amount">';
+    amountNote.textContent = '(optional for warnings)';
   } else {
     amountField.setAttribute('required', 'required');
-    amountLabel.innerHTML = 'Amount ($)<input type="number" step="0.01" name="amount" id="amount" required>';
+    amountNote.textContent = '';
   }
 });
 </script>
