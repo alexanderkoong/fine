@@ -341,13 +341,15 @@ def init():
 @app.route("/")
 @login_required
 def index():
+    # Use parameterized query and case-insensitive filtering for robustness
     fines = get_db().execute(
         """
         SELECT f.*, u.username AS proposer_name
         FROM fines f JOIN users u ON f.proposer_id = u.id
-        WHERE f.description != 'Fine Warning'
+        WHERE LOWER(TRIM(f.description)) != LOWER(TRIM(?))
         ORDER BY date DESC
-        """
+        """,
+        ('Fine Warning',)
     ).fetchall()
     return render_template("index.html", fines=fines)
 
@@ -361,7 +363,8 @@ def add():
         amount_str = request.form["amount"].strip()
         
         # For Fine Warning, amount is optional - default to 0 if not provided
-        if description == "Fine Warning" and not amount_str:
+        # Use case-insensitive comparison for robustness
+        if description.lower().strip() == "fine warning" and not amount_str:
             amount = 0.0
         else:
             amount = float(amount_str) if amount_str else 0.0
@@ -393,18 +396,21 @@ def login():
 @app.route("/totals")
 @login_required
 def totals():
+    # Use parameterized query and case-insensitive filtering for robustness
     totals = get_db().execute(
         """
         SELECT offender, SUM(amount) as total_amount, COUNT(*) as fine_count
         FROM fines
-        WHERE description != 'Fine Warning'
+        WHERE LOWER(TRIM(description)) != LOWER(TRIM(?))
         GROUP BY offender
         ORDER BY total_amount DESC
-        """
+        """,
+        ('Fine Warning',)
     ).fetchall()
     
     grand_total = get_db().execute(
-        "SELECT SUM(amount) as total FROM fines WHERE description != 'Fine Warning'"
+        "SELECT SUM(amount) as total FROM fines WHERE LOWER(TRIM(description)) != LOWER(TRIM(?))",
+        ('Fine Warning',)
     ).fetchone()["total"] or 0
     
     return render_template("totals.html", totals=totals, grand_total=grand_total)
