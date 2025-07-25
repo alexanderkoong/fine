@@ -322,6 +322,7 @@ body {
     padding: 0.25rem;
     border-radius: 4px;
     transition: background-color 0.2s;
+    color: black;
 }
 
 .edit-btn:hover, .reactions-btn:hover {
@@ -391,6 +392,7 @@ body {
     padding: 0.5rem 1rem;
     cursor: pointer;
     transition: all 0.2s;
+    color: black;
 }
 
 .fine-detail-actions .reactions-btn:hover {
