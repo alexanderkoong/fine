@@ -237,23 +237,10 @@ def ensure_templates():
       <option value='Robert'>Robert</option>
     </select>
   </label><br>
-  <label>Description <textarea name='description' id='description' required></textarea></label><br>
-  <label id='amount-label'>Amount ($) <span id='amount-note' style='color: #666;'></span><input type='number' step='0.01' name='amount' id='amount' required></label><br>
+  <label>Description <textarea name='description' required></textarea></label><br>
+  <label>Amount ($)<input type='number' step='0.01' name='amount' required></label><br>
   <button type='submit'>Submit Fine</button>
 </form>
-<script>
-document.getElementById('description').addEventListener('input', function() {
-  var amountField = document.getElementById('amount');
-  var amountNote = document.getElementById('amount-note');
-  if (this.value.trim() === 'Fine Warning') {
-    amountField.removeAttribute('required');
-    amountNote.textContent = '(optional for warnings)';
-  } else {
-    amountField.setAttribute('required', 'required');
-    amountNote.textContent = '';
-  }
-});
-</script>
 {% endblock %}""",
         "totals.html": """{% extends 'base.html' %}
 {% block content %}
@@ -362,12 +349,8 @@ def add():
         description = request.form["description"].strip()
         amount_str = request.form["amount"].strip()
         
-        # For Fine Warning, amount is optional - default to 0 if not provided
-        # Use case-insensitive comparison for robustness
-        if description.lower().strip() == "fine warning" and not amount_str:
-            amount = 0.0
-        else:
-            amount = float(amount_str) if amount_str else 0.0
+        # Amount is always required
+        amount = float(amount_str)
             
         get_db().execute(
             "INSERT INTO fines(date, offender, description, amount, proposer_id) VALUES (?,?,?,?,?)",
