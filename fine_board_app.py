@@ -131,6 +131,20 @@ def role_required(role):
     return decorator
 
 
+def admin_only(view):
+    """Decorator that restricts access to specific admin users only"""
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        user = get_db().execute("SELECT * FROM users WHERE id = ?", (session["user_id"],)).fetchone()
+        allowed_users = ["alexkoong", "noahhernandez", "james lian", "zanderbravo"]
+        if user is None or user["username"] not in allowed_users:
+            abort(403)
+        return view(*args, **kwargs)
+    return wrapped
+
+
 ############################################################
 # Template bootstrap (runs once on startup)
 ############################################################
@@ -206,7 +220,7 @@ def ensure_templates():
 {% else %}<p>No fines yet!</p>{% endif %}
 <div class="actions">
   <a href='{{ url_for('totals') }}'>📊 View Totals</a>
-  {% if g.user['role']=='upper' %}
+  {% if g.user['username'] in ['alexkoong', 'noahhernandez', 'james lian', 'zanderbravo'] %}
     <a href='{{ url_for('add') }}'>➕ Propose a new fine</a>
     <a href='{{ url_for('add_warning') }}'>⚠️ Add Fine Warning</a>
   {% endif %}
@@ -366,7 +380,7 @@ def index():
 
 
 @app.route("/add", methods=["GET", "POST"])
-@role_required("upper")
+@admin_only
 def add():
     if request.method == "POST":
         offender = request.form["offender"].strip()
@@ -387,7 +401,7 @@ def add():
 
 
 @app.route("/add-warning", methods=["GET", "POST"])
-@role_required("upper")
+@admin_only
 def add_warning():
     if request.method == "POST":
         offender = request.form["offender"].strip()
