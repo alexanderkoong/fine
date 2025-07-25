@@ -199,7 +199,7 @@ def ensure_templates():
 {% block content %}
 {% if fines %}
 <table>
-  <thead><tr><th>Date</th><th>Offender</th><th>Description</th><th>Amount ($)</th><th>Proposed By</th><th>Actions</th></tr></thead>
+  <thead><tr><th>Date</th><th>Offender</th><th>Description</th><th>Amount ($)</th><th>Proposed By</th>{% if g.user['username'] in ['alexkoong', 'noahhernandez', 'james lian', 'zanderbravo'] %}<th>Actions</th>{% endif %}</tr></thead>
   <tbody>
   {% for f in fines %}
   <tr>
@@ -208,11 +208,13 @@ def ensure_templates():
     <td>{{ f['description'] }}</td>
     <td>{{ '%.2f'|format(f['amount']) }}</td>
     <td>{{ f['proposer_name'] }}</td>
+    {% if g.user['username'] in ['alexkoong', 'noahhernandez', 'james lian', 'zanderbravo'] %}
     <td>
       <form method='post' action='{{ url_for('remove_fine', fine_id=f['id']) }}' style='display:inline;' onsubmit='return confirm("Are you sure you want to remove this fine?")'>
         <button type='submit' class='remove-btn'>Remove</button>
       </form>
     </td>
+    {% endif %}
   </tr>
   {% endfor %}
   </tbody>

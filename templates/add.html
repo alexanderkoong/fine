@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<form method='post'>
+  <label>Offender 
+    <select name='offender' required>
+      <option value=''>Select an offender</option>
+      <option value='Koong'>Koong</option>
+      <option value='Noah'>Noah</option>
+      <option value='Zander'>Zander</option>
+      <option value='James'>James</option>
+      <option value='Toby'>Toby</option>
+      <option value='Lukas'>Lukas</option>
+      <option value='Elliot'>Elliot</option>
+      <option value='Cole'>Cole</option>
+      <option value='Theo'>Theo</option>
+      <option value='Robert'>Robert</option>
+    </select>
+  </label><br>
+  <label>Description <textarea name='description' required></textarea></label><br>
+  <label>Amount ($)<input type='number' step='0.01' name='amount' required></label><br>
+  <button type='submit'>Submit Fine</button>
+</form>
+{% endblock %}
