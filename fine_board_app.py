@@ -208,6 +208,7 @@ def ensure_templates():
   <a href='{{ url_for('totals') }}'>📊 View Totals</a>
   {% if g.user['role']=='upper' %}
     <a href='{{ url_for('add') }}'>➕ Propose a new fine</a>
+    <a href='{{ url_for('add_warning') }}'>⚠️ Add Fine Warning</a>
   {% endif %}
 </div>
 {% endblock %}""",
@@ -260,6 +261,31 @@ def ensure_templates():
 </table>
 <p><strong>Grand Total: ${{ '%.2f'|format(grand_total) }}</strong></p>
 {% else %}<p>No fines recorded yet!</p>{% endif %}
+<p><a href='{{ url_for('index') }}'>← Back to Fines</a></p>
+{% endblock %}""",
+        "add_warning.html": """{% extends 'base.html' %}
+{% block content %}
+<h2>Add New Fine Warning</h2>
+<form method='post'>
+  <label>Offender 
+    <select name='offender' required>
+      <option value=''>Select an offender</option>
+      <option value='Koong'>Koong</option>
+      <option value='Noah'>Noah</option>
+      <option value='Zander'>Zander</option>
+      <option value='James'>James</option>
+      <option value='Toby'>Toby</option>
+      <option value='Lukas'>Lukas</option>
+      <option value='Elliot'>Elliot</option>
+      <option value='Cole'>Cole</option>
+      <option value='Theo'>Theo</option>
+      <option value='Robert'>Robert</option>
+    </select>
+  </label><br>
+  <label>Description <textarea name='description' required></textarea></label><br>
+  <label>Amount ($)<input type='number' step='0.01' name='amount' required></label><br>
+  <button type='submit'>Submit Fine Warning</button>
+</form>
 <p><a href='{{ url_for('index') }}'>← Back to Fines</a></p>
 {% endblock %}""",
     }
@@ -328,15 +354,13 @@ def init():
 @app.route("/")
 @login_required
 def index():
-    # Use parameterized query and case-insensitive filtering for robustness
+    # Show all fines including warnings in the main list
     fines = get_db().execute(
         """
         SELECT f.*, u.username AS proposer_name
         FROM fines f JOIN users u ON f.proposer_id = u.id
-        WHERE LOWER(TRIM(f.description)) != LOWER(TRIM(?))
         ORDER BY date DESC
-        """,
-        ('Fine Warning',)
+        """
     ).fetchall()
     return render_template("index.html", fines=fines)
 
@@ -362,6 +386,27 @@ def add():
     return render_template("add.html")
 
 
+@app.route("/add-warning", methods=["GET", "POST"])
+@role_required("upper")
+def add_warning():
+    if request.method == "POST":
+        offender = request.form["offender"].strip()
+        description = request.form["description"].strip()
+        amount_str = request.form["amount"].strip()
+        
+        # Amount is always required
+        amount = float(amount_str)
+            
+        get_db().execute(
+            "INSERT INTO fines(date, offender, description, amount, proposer_id) VALUES (?,?,?,?,?)",
+            (datetime.utcnow().isoformat(timespec="seconds"), offender, f"[WARNING] {description}", amount, g.user["id"]),
+        )
+        get_db().commit()
+        flash("Fine Warning recorded ✅")
+        return redirect(url_for("index"))
+    return render_template("add_warning.html")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -379,12 +424,13 @@ def login():
 @app.route("/totals")
 @login_required
 def totals():
-    # Use parameterized query and case-insensitive filtering for robustness
+    # Exclude both old "Fine Warning" entries and new "[WARNING]" entries from totals
     totals = get_db().execute(
         """
         SELECT offender, SUM(amount) as total_amount, COUNT(*) as fine_count
         FROM fines
         WHERE LOWER(TRIM(description)) != LOWER(TRIM(?))
+        AND description NOT LIKE '[WARNING]%'
         GROUP BY offender
         ORDER BY total_amount DESC
         """,
@@ -392,7 +438,7 @@ def totals():
     ).fetchall()
     
     grand_total = get_db().execute(
-        "SELECT SUM(amount) as total FROM fines WHERE LOWER(TRIM(description)) != LOWER(TRIM(?))",
+        "SELECT SUM(amount) as total FROM fines WHERE LOWER(TRIM(description)) != LOWER(TRIM(?)) AND description NOT LIKE '[WARNING]%'",
         ('Fine Warning',)
     ).fetchone()["total"] or 0
     
